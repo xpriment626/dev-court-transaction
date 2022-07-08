@@ -2,7 +2,7 @@ const ethers = require("ethers");
 const fs = require("fs-extra");
 require("dotenv").config();
 import { Interface } from "ethers/lib/utils";
-// import { devCourt, solCourt, jsCourt } from "./court-params";
+import { devCourt, solCourt, jsCourt } from "./court-params";
 
 const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
@@ -14,15 +14,34 @@ const signer = wallet.connect(provider);
 const iface = new Interface([
     "function createSubcourt(uint96 parent, bool hiddenVotes, uint minStake, uint alpha, uint feeForJuror, uint jurorsForCourtJump, uint[4] timesPerPeriod, uint sortitionSumTreeK)",
 ]);
-const txData = iface.encodeFunctionData("createSubcourt", [
-    "0",
-    "false",
-    "30",
-    "1400",
-    "0.5",
-    "63",
-    "[280800, 437400, 437400, 291600]",
-    "0",
+const devCourtTxData = iface.encodeFunctionData("createSubcourt", [
+    devCourt.parent,
+    devCourt.hiddenVotes,
+    devCourt.minStake,
+    devCourt.alpha,
+    devCourt.feeForJuror,
+    devCourt.jurorsForCourtJump,
+    devCourt.sortitionSumTreeK,
+]);
+
+const solCourtTxData = iface.encodeFunctionData("createSubcourt", [
+    solCourt.parent,
+    solCourt.hiddenVotes,
+    solCourt.minStake,
+    solCourt.alpha,
+    solCourt.feeForJuror,
+    solCourt.jurorsForCourtJump,
+    solCourt.sortitionSumTreeK,
+]);
+
+const jsCourtTxData = iface.encodeFunctionData("createSubcourt", [
+    jsCourt.parent,
+    jsCourt.hiddenVotes,
+    jsCourt.minStake,
+    jsCourt.alpha,
+    jsCourt.feeForJuror,
+    jsCourt.jurorsForCourtJump,
+    jsCourt.sortitionSumTreeK,
 ]);
 
 async function main() {
@@ -33,7 +52,7 @@ async function main() {
         gasPrice: gasPrice,
         gasLimit: ethers.utils.hexlify(200000),
         nonce: provider.getTransactionCount(wallet.address),
-        data: txData,
+        data: devCourtTxData,
     };
 
     await signer.sendTransaction(tx);
